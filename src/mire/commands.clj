@@ -232,6 +232,47 @@
 	)
 )
 
+(defn buy2 
+		"Buy loot from any place"
+		[thing]
+		(dosync
+    (if (or (= thing "sword"))
+      (if (room-contains-loot? @*current-room* thing)
+        (do
+          (case thing
+            "sword"
+            (if (>= @*money* 7)
+			            		(if (= ((keyword thing) @(:loot @*current-room*)) 1)
+			            						(do
+																								(move-between-refs (keyword thing)
+			                             		(:items @*current-room*)
+			                             		*inventory*)
+										            		(alter *money* - 7)
+										           			(alter (:loot @*current-room*) dissoc (keyword thing))
+										           			(str "You bought the " thing ".")
+			         									)
+
+									            (do
+									            		(move-between-refs (keyword thing)
+			                             		(:items @*current-room*)
+			                             		*inventory*)
+										            	(alter *money* - 7)
+									              (def temp-gold ((keyword thing) @(:loot @*current-room*)))
+									              (alter (:loot @*current-room*) dissoc (keyword thing))
+									              (alter (:loot @*current-room*) assoc (keyword thing) (- temp-gold 1))
+									              (str "You bought the " thing ".")
+									            )
+									          )
+			           			(str "There is no enough money")
+			      			)
+          )
+        )
+        (str " There is no any " thing " here.")
+      )
+    )
+  )
+)
+
 ;; Command data
 
 (def commands {"move" move,
@@ -248,7 +289,8 @@
                "say" say
                "help" help
                "attack" attack
-               "buy" buy})
+               "buy" buy
+               "buy2" buy2})
 
 ;; Command handling
 
